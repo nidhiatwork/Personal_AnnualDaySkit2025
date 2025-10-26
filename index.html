@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎭 Skit Line Practice 🎭</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', cursive, sans-serif;
+            background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+            min-height: 100vh; display:flex; align-items:center; justify-content:center; padding:20px; color:#333;
+        }
+        .container {
+            width:100%; max-width:900px; background:#fff; border-radius:24px; padding:26px; box-shadow:0 20px 50px rgba(0,0,0,0.15);
+        }
+        h1 { text-align:center; color:#667eea; margin-bottom:6px; font-size:2rem }
+        .subtitle { text-align:center; color:#764ba2; margin-bottom:18px }
+        .character-select { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:22px }
+        .character-btn { padding:18px; border-radius:14px; font-weight:700; color:white; border:none; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px }
+        .myra{ background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%) }
+        .jiyana{ background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%) }
+        .guruji{ background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%) }
+        .harshvardhan{ background:linear-gradient(135deg,#fa709a 0%,#fee140 100%) }
+
+        .practice-area{ display:none }
+        .practice-area.active{ display:block }
+        .progress-info{ display:flex; justify-content:space-between; align-items:center; padding:12px; background:linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%); border-radius:12px; margin-bottom:12px }
+        .progress-bar{ width:100%; height:20px; background:#e6e6e6; border-radius:10px; overflow:hidden; margin-bottom:16px }
+        .progress-fill{ height:100%; background:linear-gradient(90deg,#43e97b 0%,#38f9d7 100%); width:0; display:flex; align-items:center; justify-content:center; color:white; font-weight:700 }
+        .line-card{ background:linear-gradient(135deg,#f8f9fa 0%,#eef2f7 100%); padding:28px; border-radius:16px; text-align:center; margin-bottom:18px; min-height:160px; display:flex; align-items:center; justify-content:center }
+        .line-text{ font-size:1.3rem; line-height:1.5 }
+        .controls{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap }
+        .control-btn{ padding:12px 20px; border-radius:12px; border:none; color:white; font-weight:700; cursor:pointer }
+        .back-btn{ background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%) }
+        .prev-btn{ background:linear-gradient(135deg,#ffa726 0%,#fb8c00 100%) }
+        .speak-btn{ background:linear-gradient(135deg,#667eea 0%,#764ba2 100%) }
+        .next-btn{ background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%) }
+        .celebration{ display:none; text-align:center; padding:24px }
+        .celebration.active{ display:block }
+        @media (max-width:560px){ .line-text{ font-size:1.05rem } .character-btn{ padding:14px } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎭 Skit Line Practice 🎭</h1>
+        <p class="subtitle">Tap Next to hear the next line. Use Listen to have the line read aloud.</p>
+
+        <div id="characterSelect" class="character-select">
+            <button class="character-btn myra" onclick="startPractice('Myra')">
+                <div style="font-size:1.6rem">🌟</div>
+                <div>Myra</div>
+                <div style="opacity:0.9;font-size:.85rem">14 lines</div>
+            </button>
+            <button class="character-btn jiyana" onclick="startPractice('Jiyana')">
+                <div style="font-size:1.6rem">✨</div>
+                <div>Jiyana</div>
+                <div style="opacity:0.9;font-size:.85rem">18 lines</div>
+            </button>
+            <button class="character-btn guruji" onclick="startPractice('Guruji')">
+                <div style="font-size:1.6rem">🙏</div>
+                <div>Guruji</div>
+                <div style="opacity:0.9;font-size:.85rem">7 lines</div>
+            </button>
+            <button class="character-btn harshvardhan" onclick="startPractice('Harshvardhan')">
+                <div style="font-size:1.6rem">🎪</div>
+                <div>Harshvardhan</div>
+                <div style="opacity:0.9;font-size:.85rem">2 lines</div>
+            </button>
+        </div>
+
+        <div id="practiceArea" class="practice-area">
+            <div class="progress-info">
+                <div>📝 Line <span id="currentNum">1</span> of <span id="totalNum">0</span></div>
+                <div id="characterName">Myra</div>
+            </div>
+
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill">0%</div>
+            </div>
+
+            <div class="line-card">
+                <div class="line-text" id="lineText">Click Next to start.</div>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn back-btn" onclick="backToCharacters()">🏠 Home</button>
+                <button id="prevBtn" class="control-btn prev-btn" onclick="previousLine()">◀ Previous</button>
+                <button id="speakBtn" class="control-btn speak-btn" onclick="speakLine()">🔊 Listen</button>
+                <button id="nextBtn" class="control-btn next-btn" onclick="nextLine()">Next ▶</button>
+            </div>
+
+            <div id="celebration" class="celebration">
+                <h2>🎉 Great job! 🎉</h2>
+                <p style="font-size:1.1rem; color:#667eea">You practiced all your lines. Want to try another character?</p>
+                <div style="margin-top:14px"><button class="control-btn next-btn" onclick="backToCharacters()">Choose Another Character</button></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sequential line practice data
+        const characterLines = {
+            Myra: [
+                "It's shiny... and funny-looking! Is it... a robot?",
+                "Time machine? What does that do?",
+                "Magic Travel .... Wow and Look! There's a A book! And it says... Guru Kul?!",
+                "Nope! It's a guide from long ago... children learned under the guidance of a wise teacher—a Guru!",
+                "Yeah! No screens... just birds, books, and big ideas!",
+                "Yes! Let's GO!",
+                "See! They're folding hands... what are they saying?",
+                "Yes! He is teaching under the tree. How peaceful it looks!",
+                "Yes, Guruji! We came in a magic time machine! We wanted to see how children learn here.",
+                "Yes, and they respect you so much, Guruji! It feels so calm here.",
+                "Yes! And we want you to meet our parents too. They will be very happy!",
+                "Guruji! Look! In our school, we say happy words every day!",
+                "Yes! It helps us be kind, smile, and do our best!",
+                "Guruji here parents come to meet teachers and they share progress and feedback with each other."
+            ],
+            Jiyana: [
+                "Hey! What's that? It wasn't here before!",
+                "Nooo! I think... it's a TIME MACHINE!",
+                "It takes us to the PAST... or the FUTURE! Like magic travel!",
+                "Guru Kul? What's that? Is it a game?",
+                "Wow! They learned with nature! That's so cool!",
+                "Let's go see that old school! Are you ready?",
+                "Wow! Look around! Trees... huts... no buildings!",
+                "Look! Children are sitting on the floor... and there's the GURU!",
+                "It's a prayer... like magic words for the teacher!",
+                "Look... the children are folding their hands, smiling at their Guru, and learning with so much respect! Wow... I wonder what their school looks like... the mats, the trees, the little river... let's go and see all the fun things they do here!",
+                "Guruji, we come from another time — from the future!",
+                "We saw how children are learning with love. They sit under trees and listen so nicely",
+                "Guruji, can you come with us to our school? We want to show you our classroom.",
+                "Guruji the stage is ready now let see another performance",
+                "Yes! We say 'I can do it!' and 'I am smart!' It makes us feel strong and brave!",
+                "See, Guruji! We say them every morning. It makes our day bright!",
+                "now it's a SPTM day in school.",
+                "Guruji Now let's go to our music class."
+            ],
+            Guruji: [
+                "Namaste, my dear children. Who are you? I haven't seen you in my school before.",
+                "Oh! That's wonderful! What do you see in my school, children?",
+                "Yes, children. Here we learn with heart, with hands, and with honesty.",
+                "I would love to come, my children. Let's go together and see your world.",
+                "Wow! Your school is full of joy! Children are learning happily, just like in my school, but with fun games too!",
+                "Very good! Saying happy words is very important. It helps children believe in themselves and feel confident.",
+                "Children, your school is full of joy and positivity. Keep learning with happiness and kind words, always!"
+            ],
+            Harshvardhan: [
+                "What a fabulous show! Please look louder for our amazing performers!",
+                "They practiced with so much dedication and love. Let's cheer once more for their spirit and smiles!"
+            ]
+        };
+
+        let currentCharacter = '';
+        let currentLineIndex = 0;
+        let lines = [];
+
+        function startPractice(character) {
+            currentCharacter = character;
+            currentLineIndex = 0;
+            lines = characterLines[character] || [];
+            document.getElementById('characterSelect').style.display = 'none';
+            document.getElementById('practiceArea').classList.add('active');
+            document.getElementById('celebration').classList.remove('active');
+            document.getElementById('characterName').textContent = character;
+            document.getElementById('totalNum').textContent = lines.length;
+            showLine();
+        }
+
+        function showLine() {
+            if (!lines || lines.length === 0) {
+                document.getElementById('lineText').textContent = 'No lines available for this character.';
+                document.getElementById('prevBtn').disabled = true;
+                document.getElementById('nextBtn').disabled = true;
+                return;
+            }
+            if (currentLineIndex >= lines.length) { showCelebration(); return; }
+            const text = lines[currentLineIndex];
+            document.getElementById('lineText').textContent = text;
+            document.getElementById('currentNum').textContent = currentLineIndex + 1;
+            const progress = ((currentLineIndex + 1) / lines.length) * 100;
+            const fill = document.getElementById('progressFill');
+            fill.style.width = progress + '%'; fill.textContent = Math.round(progress) + '%';
+            document.getElementById('prevBtn').disabled = currentLineIndex === 0;
+            document.getElementById('nextBtn').textContent = currentLineIndex === lines.length - 1 ? 'Finish! 🎉' : 'Next ▶';
+        }
+
+        function nextLine() { if (currentLineIndex < lines.length - 1) { currentLineIndex++; showLine(); playSound('next'); } else { showCelebration(); } }
+        function previousLine() { if (currentLineIndex > 0) { currentLineIndex--; showLine(); playSound('prev'); } }
+
+        function speakLine() {
+            if (!lines || lines.length === 0) return;
+            const text = lines[currentLineIndex];
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.rate = 0.85; u.pitch = 1.05; window.speechSynthesis.speak(u); playSound('speak');
+            } else { playSound('speak'); }
+        }
+
+        function showCelebration() {
+            document.querySelector('.line-card').style.display = 'none';
+            document.querySelector('.controls').style.display = 'none';
+            document.querySelector('.progress-bar').style.display = 'none';
+            document.querySelector('.progress-info').style.display = 'none';
+            document.getElementById('celebration').classList.add('active');
+            playSound('celebration');
+        }
+
+        function backToCharacters() {
+            document.getElementById('characterSelect').style.display = 'grid';
+            document.getElementById('practiceArea').classList.remove('active');
+            document.querySelector('.line-card').style.display = 'flex';
+            document.querySelector('.controls').style.display = 'flex';
+            document.querySelector('.progress-bar').style.display = 'block';
+            document.querySelector('.progress-info').style.display = 'flex';
+            window.speechSynthesis.cancel();
+        }
+
+        function playSound(type) {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext; if (!AudioContext) return; const ctx = new AudioContext();
+                if (type === 'next' || type === 'prev') { const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'sine'; o.frequency.value = type === 'next' ? 700 : 420; o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(0.12, ctx.currentTime); o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.12); }
+                else if (type === 'speak') { const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'sine'; o.frequency.value = 880; o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(0.08, ctx.currentTime); o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.18); }
+                else if (type === 'celebration') { [523,659,784,1047].forEach((f,i)=>{ const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='sine'; o.frequency.value=f; o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.12); o.start(ctx.currentTime + i * 0.12); o.stop(ctx.currentTime + i * 0.12 + 0.3); }); }
+            } catch (e) { /* ignore */ }
+        }
+
+        document.addEventListener('keydown', (e)=>{
+            const practicing = document.getElementById('practiceArea').classList.contains('active');
+            const celebrating = document.getElementById('celebration').classList.contains('active');
+            if (!practicing || celebrating) return;
+            if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextLine(); }
+            else if (e.key === 'ArrowLeft') { e.preventDefault(); previousLine(); }
+            else if (e.key.toLowerCase() === 's') { e.preventDefault(); speakLine(); }
+        });
+    </script>
+</body>
+</html>
