@@ -69,6 +69,11 @@
             </button>
         </div>
 
+        <!-- Full skit flow button -->
+        <div style="text-align:center;margin-bottom:18px;">
+            <button id="flowBtn" class="control-btn next-btn" style="padding:12px 18px;border-radius:12px;" onclick="startFlow()">▶ Play Full Skit Flow</button>
+        </div>
+
         <div id="practiceArea" class="practice-area">
             <div class="progress-info">
                 <div>📝 Line <span id="currentNum">1</span> of <span id="totalNum">0</span></div>
@@ -94,6 +99,42 @@
                 <h2>🎉 Great job! 🎉</h2>
                 <p style="font-size:1.1rem; color:#667eea">You practiced all your lines. Want to try another character?</p>
                 <div style="margin-top:14px"><button class="control-btn next-btn" onclick="backToCharacters()">Choose Another Character</button></div>
+            </div>
+        </div>
+
+        <!-- Flow area: shows full skit sequence with speaker and auto-play -->
+        <div id="flowArea" class="practice-area" style="display:none;">
+            <div class="progress-info">
+                <div><strong id="flowSpeaker">Speaker</strong></div>
+                <div>Line <span id="flowNum">1</span> of <span id="flowTotal">0</span></div>
+            </div>
+
+            <div class="progress-bar">
+                <div id="flowProgress" class="progress-fill">0%</div>
+            </div>
+
+            <div class="line-card" style="min-height:180px;">
+                <div class="line-text" id="flowLine">Full skit will appear here.</div>
+            </div>
+
+            <div style="display:flex;gap:10px;justify-content:center;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
+                <button class="control-btn prev-btn" onclick="flowPrev()">◀ Prev</button>
+                <button id="flowListen" class="control-btn speak-btn" onclick="flowSpeak()">🔊 Listen</button>
+                <button id="flowNext" class="control-btn next-btn" onclick="flowNext()">Next ▶</button>
+                <button id="flowPlay" class="control-btn next-btn" onclick="toggleFlowPlay()">Play ▶</button>
+                <label style="display:flex;align-items:center;gap:6px;color:#333;background:#fff;padding:6px;border-radius:8px;font-weight:600;">
+                    <input id="flowAutoCheck" type="checkbox" style="width:16px;height:16px;"> Auto-advance
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;color:#333;background:#fff;padding:6px;border-radius:8px;font-weight:600;">
+                    Delay
+                    <select id="flowDelay" style="margin-left:6px;padding:4px;border-radius:6px;">
+                        <option value="1200">1.2s</option>
+                        <option value="1800">1.8s</option>
+                        <option value="2400" selected>2.4s</option>
+                        <option value="3200">3.2s</option>
+                    </select>
+                </label>
+                <button class="control-btn back-btn" onclick="endFlow()">🏠 Exit Flow</button>
             </div>
         </div>
     </div>
@@ -235,6 +276,125 @@
             else if (e.key === 'ArrowLeft') { e.preventDefault(); previousLine(); }
             else if (e.key.toLowerCase() === 's') { e.preventDefault(); speakLine(); }
         });
+
+        // --- Full skit flow implementation ---
+        const fullSkit = [
+            {who: 'Jiyana', text: "Hey! What's that? It wasn't here before!"},
+            {who: 'Myra', text: "It's shiny... and funny-looking! Is it... a robot?"},
+            {who: 'Jiyana', text: "Nooo! I think... it's a TIME MACHINE!"},
+            {who: 'Myra', text: "Time machine? What does that do?"},
+            {who: 'Jiyana', text: "It takes us to the PAST... or the FUTURE! Like magic travel!"},
+            {who: 'Myra', text: "Magic Travel .... Wow and Look! There's a A book! And it says... Guru Kul?!"},
+            {who: 'Jiyana', text: "Guru Kul? What's that? Is it a game?"},
+            {who: 'Myra', text: "Nope! It's a guide from long ago... children learned under the guidance of a wise teacher—a Guru!"},
+            {who: 'Jiyana', text: "Wow! They learned with nature! That's so cool!"},
+            {who: 'Myra', text: "Yeah! No screens... just birds, books, and big ideas!"},
+            {who: 'Jiyana', text: "Let's go see that old school! Are you ready?"},
+            {who: 'Myra', text: "Yes! Let's GO!"},
+            {who: 'All', text: "1... 2... 3... ZOOOM!"},
+            {who: 'Jiyana', text: "Wow! Look around! Trees... huts... no buildings!"},
+            {who: 'Jiyana', text: "Look! Children are sitting on the floor... and there's the GURU!"},
+            {who: 'Myra', text: "See! They're folding hands... what are they saying?"},
+            {who: 'Jiyana', text: "It's a prayer... like magic words for the teacher!"},
+            {who: 'Jiyana', text: "Look... the children are folding their hands, smiling at their Guru, and learning with so much respect!"},
+            {who: 'Both', text: "Namaste, Guruji!"},
+            {who: 'Guruji', text: "Namaste, my dear children. Who are you? I haven't seen you in my school before."},
+            {who: 'Jiyana', text: "Guruji, we come from another time — from the future!"},
+            {who: 'Myra', text: "Yes, Guruji! We came in a magic time machine! We wanted to see how children learn here."},
+            {who: 'Guruji', text: "Oh! That's wonderful! What do you see in my school, children?"},
+            {who: 'Jiyana', text: "We saw how children are learning with love. They sit under trees and listen so nicely"},
+            {who: 'Myra', text: "Yes, and they respect you so much, Guruji! It feels so calm here."},
+            {who: 'Guruji', text: "Yes, children. Here we learn with heart, with hands, and with honesty."},
+            {who: 'Jiyana', text: "Guruji, can you come with us to our school? We want to show you our classroom."},
+            {who: 'Guruji', text: "I would love to come, my children. Let's go together and see your world."},
+            {who: 'Harshvardhan', text: "What a fabulous show! Please look louder for our amazing performers!"},
+            {who: 'Harshvardhan', text: "They practiced with so much dedication and love. Let's cheer once more for their spirit and smiles!"},
+            {who: 'Jiyana', text: "Yes! We say 'I can do it!' and 'I am smart!' It makes us feel strong and brave!"},
+            {who: 'Myra', text: "Yes! It helps us be kind, smile, and do our best!"},
+            {who: 'Jiyana', text: "now it's a SPTM day in school."},
+            {who: 'Jiyana', text: "Guruji Now let's go to our music class."}
+        ];
+
+        let flowIndex = 0;
+        let flowTimer = null;
+        let flowPlaying = false;
+
+        function startFlow(){
+            // show flow area
+            document.getElementById('characterSelect').style.display = 'none';
+            document.getElementById('practiceArea').classList.remove('active');
+            document.getElementById('flowArea').style.display = 'block';
+            document.getElementById('flowArea').classList.add('active');
+            document.getElementById('flowTotal').textContent = fullSkit.length;
+            flowIndex = 0;
+            showFlow();
+        }
+
+        function showFlow(){
+            const item = fullSkit[flowIndex];
+            document.getElementById('flowSpeaker').textContent = item.who;
+            document.getElementById('flowLine').textContent = item.text;
+            document.getElementById('flowNum').textContent = flowIndex + 1;
+            const progress = ((flowIndex+1)/fullSkit.length) * 100;
+            const fill = document.getElementById('flowProgress');
+            fill.style.width = progress + '%'; fill.textContent = Math.round(progress) + '%';
+            // style speaker button background for visual cue
+            styleFlowSpeaker(item.who);
+        }
+
+        function styleFlowSpeaker(who){
+            const flowLineEl = document.getElementById('flowLine');
+            // quick mapping by name -> color
+            const map = {
+                'Myra':'linear-gradient(135deg,#f093fb 0%,#f5576c 100%)',
+                'Jiyana':'linear-gradient(135deg,#4facfe 0%,#00f2fe 100%)',
+                'Guruji':'linear-gradient(135deg,#43e97b 0%,#38f9d7 100%)',
+                'Harshvardhan':'linear-gradient(135deg,#fa709a 0%,#fee140 100%)',
+                'Both':'linear-gradient(135deg,#ffd194 0%,#70e1f5 100%)',
+                'All':'linear-gradient(135deg,#ffd194 0%,#70e1f5 100%)'
+            };
+            const bg = map[who] || 'linear-gradient(135deg,#e2e2e2,#cfcfcf)';
+            flowLineEl.parentElement.style.border = '6px solid transparent';
+            flowLineEl.parentElement.style.background = bg;
+            flowLineEl.style.color = '#111';
+        }
+
+        function flowNext(){
+            if (flowIndex < fullSkit.length -1){ flowIndex++; showFlow(); }
+            else { endFlow(); }
+            if (document.getElementById('flowAutoCheck').checked && flowPlaying){ scheduleFlowAdvance(); }
+        }
+
+        function flowPrev(){ if (flowIndex>0){ flowIndex--; showFlow(); } }
+
+        function flowSpeak(){
+            const item = fullSkit[flowIndex];
+            const msg = item.who + ': ' + item.text;
+            if ('speechSynthesis' in window){ window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(msg); u.rate=0.9; u.pitch=1.0; window.speechSynthesis.speak(u); }
+        }
+
+        function toggleFlowPlay(){
+            flowPlaying = !flowPlaying;
+            document.getElementById('flowPlay').textContent = flowPlaying ? 'Pause ⏸' : 'Play ▶';
+            if (flowPlaying && document.getElementById('flowAutoCheck').checked){ scheduleFlowAdvance(); }
+            else { if (flowTimer) { clearTimeout(flowTimer); flowTimer = null; } }
+        }
+
+        function scheduleFlowAdvance(){
+            if (flowTimer) clearTimeout(flowTimer);
+            const delay = parseInt(document.getElementById('flowDelay').value,10) || 2400;
+            flowTimer = setTimeout(()=>{ flowSpeak(); if (flowIndex < fullSkit.length -1){ flowIndex++; showFlow(); if (document.getElementById('flowAutoCheck').checked && flowPlaying) scheduleFlowAdvance(); } else { endFlow(); } }, delay);
+        }
+
+        function endFlow(){
+            flowPlaying = false; if (flowTimer){ clearTimeout(flowTimer); flowTimer=null; }
+            document.getElementById('flowArea').style.display = 'none';
+            document.getElementById('flowArea').classList.remove('active');
+            document.getElementById('characterSelect').style.display = 'grid';
+            // restore line-card style
+            document.querySelector('.line-card').style.background = '';
+            document.querySelector('.line-card').style.border = '';
+        }
     </script>
 </body>
 </html>
